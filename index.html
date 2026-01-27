@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will you be my Valentine? 💕</title>
+    <title>Will you be my Valentine? 💕 - Tap to answer</title>
+    <meta property="og:url" content="https://tinyurl.com/3vtecaur">
+    <meta property="og:image" content="/assets/yes.jpg">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -508,6 +510,9 @@
                 }
             },
             methods: {
+                getShareUrl() {
+                    return 'https://tinyurl.com/3vtecaur';
+                },
                 async handleNo() {
                     // Play error sound
                     if (this.errorSound) {
@@ -589,7 +594,7 @@
                     }, 500);
                 },
                 copyLink() {
-                    const url = window.location.href;
+                    const url = this.getShareUrl();
                     navigator.clipboard.writeText(url).then(() => {
                         this.toastMessage = 'Link copied! 💕';
                         this.showToast = true;
@@ -605,21 +610,21 @@
                     });
                 },
                 shareWhatsApp() {
-                    const text = encodeURIComponent('Will you be my Valentine? 💕 ' + window.location.href);
+                    const text = encodeURIComponent('Will you be my Valentine? 💕 ' + this.getShareUrl());
                     window.open(`https://wa.me/?text=${text}`, '_blank');
                 },
                 shareFacebook() {
-                    const url = encodeURIComponent(window.location.href);
+                    const url = encodeURIComponent(this.getShareUrl());
                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
                 },
                 shareTwitter() {
                     const text = encodeURIComponent('Will you be my Valentine? 💕');
-                    const url = encodeURIComponent(window.location.href);
+                    const url = encodeURIComponent(this.getShareUrl());
                     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                 },
                 shareTelegram() {
                     const text = encodeURIComponent('Will you be my Valentine? 💕');
-                    const url = encodeURIComponent(window.location.href);
+                    const url = encodeURIComponent(this.getShareUrl());
                     window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
                 },
                 restart() {
