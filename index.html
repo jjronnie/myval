@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will you be my Valentine? 💕</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Ubuntu Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Ubuntu', sans-serif;
+        }
+        
+        @keyframes floatHeart {
+            0% { 
+                transform: translateY(100vh) scale(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-100vh) scale(1) rotate(360deg); 
+                opacity: 0; 
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10% { transform: translateX(-10px) rotate(-1deg); }
+            20% { transform: translateX(10px) rotate(1deg); }
+            30% { transform: translateX(-10px) rotate(-1deg); }
+            40% { transform: translateX(10px) rotate(1deg); }
+            50% { transform: translateX(-10px) rotate(-1deg); }
+            60% { transform: translateX(10px) rotate(1deg); }
+            70% { transform: translateX(-10px) rotate(-1deg); }
+            80% { transform: translateX(10px) rotate(1deg); }
+            90% { transform: translateX(-10px) rotate(-1deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes balloonFloat {
+            0% { 
+                transform: translateY(100vh) translateX(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { opacity: 1; }
+            100% { 
+                transform: translateY(-100vh) translateX(var(--drift)) rotate(var(--rotate)); 
+                opacity: 0; 
+            }
+        }
+        
+        @keyframes slideOutRight {
+            to {
+                transform: translateX(200vw);
+                opacity: 0;
+            }
+        }
+        
+        .floating-hearts {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            animation: floatHeart linear infinite;
+            left: var(--left);
+            animation-duration: var(--duration);
+            animation-delay: var(--delay);
+        }
+        
+        .shake-card {
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        .balloon {
+            position: fixed;
+            font-size: 50px;
+            animation: balloonFloat linear;
+            animation-duration: var(--duration);
+            left: var(--left);
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .btn-grow {
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .btn-no-push {
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .slide-out {
+            animation: slideOutRight 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .heart, .balloon {
+                animation-duration: 0.01ms !important;
+            }
+            .shake-card {
+                animation: none !important;
+            }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(45deg, #ec4899, #ef4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-200 via-red-200 to-pink-300 overflow-x-hidden">
+    
+    <div id="app">
+        <!-- Floating hearts background -->
+        <div class="floating-hearts">
+            <div class="heart" style="--left: 5%; --duration: 10s; --delay: 0s;">💕</div>
+            <div class="heart" style="--left: 15%; --duration: 12s; --delay: 2s;">❤️</div>
+            <div class="heart" style="--left: 30%; --duration: 8s; --delay: 4s;">💖</div>
+            <div class="heart" style="--left: 45%; --duration: 14s; --delay: 1s;">💗</div>
+            <div class="heart" style="--left: 60%; --duration: 9s; --delay: 3s;">💝</div>
+            <div class="heart" style="--left: 75%; --duration: 11s; --delay: 5s;">💓</div>
+            <div class="heart" style="--left: 90%; --duration: 13s; --delay: 6s;">💞</div>
+        </div>
+
+        <div class="container mx-auto px-4 py-8 relative z-10">
+            
+            <!-- Top Ad Slot -->
+            <div class="mb-8">
+                <div class="max-w-3xl mx-auto bg-white/50 backdrop-blur-sm border-2 border-dashed border-pink-300 rounded-lg flex items-center justify-center shadow-lg" 
+                     style="height: 90px;">
+                    <div class="text-center">
+                        <i class="fas fa-ad text-pink-300 text-2xl mb-1"></i>
+                        <p class="text-pink-400 text-sm font-medium">Ad Space 728x90 / 320x100</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Card -->
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 relative overflow-hidden"
+                     :class="{ 'shake-card': shakeCard }">
+                    
+                    <!-- Decorative corner hearts -->
+                    <div class="absolute top-6 left-6 text-4xl animate-pulse">
+                        <i class="fas fa-heart text-pink-400"></i>
+                    </div>
+                    <div class="absolute top-6 right-6 text-4xl animate-pulse" style="animation-delay: 0.5s;">
+                        <i class="fas fa-heart text-red-400"></i>
+                    </div>
+                    <div class="absolute bottom-6 left-6 text-4xl animate-pulse" style="animation-delay: 1s;">
+                        <i class="fas fa-heart text-pink-500"></i>
+                    </div>
+                    <div class="absolute bottom-6 right-6 text-4xl animate-pulse" style="animation-delay: 1.5s;">
+                        <i class="fas fa-heart text-red-500"></i>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="relative z-10">
+                        <!-- Not accepted state -->
+                        <div v-if="!accepted" class="text-center">
+                            <h1 class="text-3xl md:text-5xl font-bold text-pink-600 mb-4 flex items-center justify-center gap-3">
+                                <i class="fas fa-envelope-open-heart"></i>
+                                Hey Love,
+                            </h1>
+                            
+                            <!-- Heart Illustration -->
+                            <div class="my-8 flex justify-center">
+                                <div class="relative">
+                                    <i class="fas fa-heart text-8xl text-red-400" style="animation: pulse 2s infinite;"></i>
+                                    <i class="fas fa-heart text-6xl text-pink-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style="animation: pulse 2s infinite; animation-delay: 0.5s;"></i>
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-2xl md:text-4xl font-black gradient-text mb-6">
+                                Will you be my Valentine?
+                            </h2>
+
+                            <div>
+                                <img src="assets/yes.jpg" alt="yes image" class="mx-auto  shadow-lg mb-6 w-72 h-72 object-cover">
+                            </div>
+                            
+                            <p class="text-lg md:text-xl text-gray-600 mb-8 min-h-[3em] transition-all duration-300">
+                                {{ currentSubtitle }}
+                            </p>
+                            
+                            <!-- Wrong answer notification -->
+                            <transition name="bounce">
+                                <div v-if="wrongAnswer" 
+                                     class="mb-4 text-red-500 font-bold text-lg flex items-center justify-center gap-2"
+                                     style="animation: pulse 0.5s;">
+                                    <i class="fas fa-times-circle"></i>
+                                    Wrong answer!
+                                </div>
+                            </transition>
+                            
+                            <!-- Buttons Container -->
+                            <div class="mt-12 min-h-[120px] flex flex-col sm:flex-row gap-6 items-center justify-center relative">
+                                <!-- Yes Button -->
+                                <button 
+                                    @click="handleYes"
+                                    class="btn-grow bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-4 px-12 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-pink-300 z-20 flex items-center gap-2"
+                                    :style="yesButtonStyle"
+                                    aria-label="Say yes to being my Valentine">
+                                    <i class="fas fa-heart"></i>
+                                    Yes!
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                
+                                <!-- No Button -->
+                                <button 
+                                    v-if="showNoButton"
+                                    @click="handleNo"
+                                    :class="{ 'slide-out': noSlidingOut }"
+                                    class="btn-no-push border-2 border-gray-400 hover:border-gray-600 text-gray-600 font-bold py-4 px-12 rounded-full focus:outline-none focus:ring-4 focus:ring-gray-300 flex items-center gap-2"
+                                    :style="noButtonStyle"
+                                    aria-label="Say no">
+                                    <i class="fas fa-times"></i>
+                                    {{ currentNoText }}
+                                </button>
+                                
+                                <!-- No has left message -->
+                                <transition name="fade">
+                                    <div v-if="!showNoButton && !noSlidingOut" class="text-gray-400 italic text-sm flex items-center gap-2">
+                                        <i class="fas fa-ghost"></i>
+                                        "No" has left the chat...
+                                    </div>
+                                </transition>
+                            </div>
+                        </div>
+                        
+                        <!-- Accepted state -->
+                        <transition name="fade">
+                            <div v-if="accepted" class="text-center">
+                                <h1 class="text-4xl md:text-6xl font-black text-green-500 mb-6 flex items-center justify-center gap-4" style="animation: pulse 1s infinite;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Yessss!
+                                    <i class="fas fa-champagne-glasses"></i>
+                                </h1>
+                                
+                                <div class="my-8">
+                                    <i class="fas fa-heart text-9xl text-green-400" style="animation: pulse 1.5s infinite;"></i>
+                                </div>
+                                
+                                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-3">
+                                    <i class="fas fa-sparkles text-yellow-400"></i>
+                                    I knew you were the one!
+                                    <i class="fas fa-sparkles text-yellow-400"></i>
+                                </h2>
+                                
+                                <p class="text-xl md:text-2xl text-pink-600 mb-8 font-semibold">
+                                    {{ randomFinalMessage }}
+                                </p>
+                                
+                                <!-- Share panel -->
+                                <div class="mt-12 p-6 bg-gradient-to-r from-pink-50 to-red-50 rounded-2xl border-2 border-pink-200">
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-2">
+                                        <i class="fas fa-share-nodes text-pink-500"></i>
+                                        Share the love
+                                    </h3>
+                                    
+                                    <div class="flex flex-wrap gap-3 justify-center mb-6">
+                                        <button 
+                                            @click="shareWhatsApp"
+                                            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 flex items-center gap-2">
+                                            <i class="fab fa-whatsapp"></i>
+                                            WhatsApp
+                                        </button>
+                                        
+                                      
+                                       
+                                        
+                                      
+                                    </div>
+                                    
+                                    <button 
+                                        @click="copyLink"
+                                        class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-400 mb-4 flex items-center gap-2 mx-auto">
+                                        <i class="fas fa-link"></i>
+                                        Copy Link
+                                    </button>
+                                    
+                                    <div class="mt-4">
+                                        <button 
+                                            @click="restart"
+                                            class="text-gray-500 hover:text-gray-700 underline text-sm focus:outline-none flex items-center gap-2 mx-auto">
+                                            <i class="fas fa-rotate-right"></i>
+                                            Restart Experience
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Ad Slot -->
+            <div class="mt-8">
+                <div class="max-w-3xl mx-auto bg-white/50 backdrop-blur-sm border-2 border-dashed border-pink-300 rounded-lg flex items-center justify-center shadow-lg" 
+                     style="height: 90px;">
+                    <div class="text-center">
+                        <i class="fas fa-ad text-pink-300 text-2xl mb-1"></i>
+                        <p class="text-pink-400 text-sm font-medium">Ad Space 728x90 / 320x100</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Toast notification -->
+            <transition name="slide">
+                <div v-if="showToast" 
+                     class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-2xl z-50 flex items-center gap-3">
+                    <i class="fas fa-check-circle text-xl"></i>
+                    <span class="font-semibold">{{ toastMessage }}</span>
+                </div>
+            </transition>
+            
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    noCount: 0,
+                    accepted: false,
+                    showToast: false,
+                    toastMessage: '',
+                    shakeCard: false,
+                    wrongAnswer: false,
+                    noSlidingOut: false,
+                    noTexts: [
+                        'No',
+                        'Are you sure?',
+                        'Sure sure?',
+                        'Think again.',
+                        'Baby, please.',
+                        'Don\'t do me like that.',
+                        'I\'ll cry.',
+                        'I\'m already picking flowers.',
+                        'That hurts, you know.',
+                        'Okay, last chance.',
+                        'Be serious.',
+                        'My heart can\'t take this.',
+                        'You\'re playing hard to get.',
+                        'I\'m asking nicely.',
+                        'Say yes, my love.',
+                        'Please? 🥺',
+                        'Just say yes already!',
+                        'You\'re killing me here...'
+                    ],
+                    subtitleTexts: [
+                        'I promise to be the best Valentine ever! 💝',
+                        'Come on, you know you want to... 🥺',
+                        'I\'m not giving up that easily! 💪',
+                        'The flowers are getting sad... 🥀',
+                        'Even my dog thinks we should be together 🐕',
+                        'I\'ve been practicing my romantic lines! 📝',
+                        'I already told my friends you\'d say yes... 😅',
+                        'The Yes button is looking very tempting now, isn\'t it? 👀',
+                        'Just click Yes, nobody\'s watching... 😏',
+                        'I can do this all day! ⏰',
+                        'The Yes button wants you to click it! 🎯',
+                        'Resistance is futile! 🚀',
+                        'You\'re making this harder than it needs to be! 😤',
+                        'Just surrender to love already! 💘',
+                        'The Yes button is practically begging now! 🙏',
+                        'Fine, I\'ll make the Yes button IMPOSSIBLE to ignore! 😈',
+                        'See how big Yes is getting? That\'s destiny! ✨',
+                        'The universe wants you to say yes! 🌟'
+                    ],
+                    finalMessages: [
+                        'Best decision you\'ve made today. 💯',
+                        'Now come get your hug. 🤗',
+                        'We\'re officially a Valentine story. 📖',
+                        'I\'m smiling like crazy right now. 😊',
+                        'Plot twist, you had no choice. 😏',
+                        'I knew you couldn\'t resist! 😘',
+                        'Love wins! Always. ❤️'
+                    ],
+                    errorSound: null,
+                    clapSound: null
+                };
+            },
+            computed: {
+                currentNoText() {
+                    const index = Math.min(this.noCount, this.noTexts.length - 1);
+                    return this.noTexts[index];
+                },
+                currentSubtitle() {
+                    if (this.noCount === 0) return 'I promise to be the best Valentine ever! 💝';
+                    const index = Math.min(this.noCount - 1, this.subtitleTexts.length - 1);
+                    return this.subtitleTexts[index];
+                },
+                yesScale() {
+                    // Exponential growth for dramatic effect
+                    return 1 + (this.noCount * 0.2);
+                },
+                yesButtonStyle() {
+                    const scale = this.yesScale;
+                    return {
+                        transform: `scale(${scale})`,
+                        zIndex: 20
+                    };
+                },
+                noButtonStyle() {
+                    // Push the No button to the right as Yes grows
+                    const pushDistance = this.noCount * 30; // pixels to push
+                    return {
+                        transform: `translateX(${pushDistance}px)`,
+                        opacity: Math.max(0, 1 - (this.noCount * 0.05))
+                    };
+                },
+                showNoButton() {
+                    return this.noCount < 15 && !this.noSlidingOut;
+                },
+                randomFinalMessage() {
+                    return this.finalMessages[Math.floor(Math.random() * this.finalMessages.length)];
+                }
+            },
+            methods: {
+                async handleNo() {
+                    // Play error sound
+                    if (this.errorSound) {
+                        this.errorSound.currentTime = 0;
+                        this.errorSound.play().catch(e => console.log('Sound play failed:', e));
+                    }
+                    
+                    this.noCount++;
+                    this.shakeCard = true;
+                    this.wrongAnswer = true;
+                    
+                    setTimeout(() => {
+                        this.shakeCard = false;
+                    }, 600);
+                    
+                    setTimeout(() => {
+                        this.wrongAnswer = false;
+                    }, 2000);
+                    
+                    // If we've reached the limit, slide out the No button
+                    if (this.noCount >= 15) {
+                        this.noSlidingOut = true;
+                    }
+                },
+                async handleYes() {
+                    // Play clapping sound
+                    if (this.clapSound) {
+                        this.clapSound.currentTime = 0;
+                        this.clapSound.play().catch(e => console.log('Sound play failed:', e));
+                    }
+                    
+                    this.accepted = true;
+                    
+                    // Confetti celebration
+                    const duration = 4000;
+                    const end = Date.now() + duration;
+                    
+                    const colors = ['#ff0000', '#ff69b4', '#ff1493', '#ffc0cb', '#ff6b9d'];
+                    
+                    const frame = () => {
+                        confetti({
+                            particleCount: 7,
+                            angle: 60,
+                            spread: 55,
+                            origin: { x: 0 },
+                            colors: colors
+                        });
+                        confetti({
+                            particleCount: 7,
+                            angle: 120,
+                            spread: 55,
+                            origin: { x: 1 },
+                            colors: colors
+                        });
+                        
+                        if (Date.now() < end) {
+                            requestAnimationFrame(frame);
+                        }
+                    };
+                    frame();
+                    
+                    // Create floating balloons
+                    setTimeout(() => {
+                        for (let i = 0; i < 12; i++) {
+                            setTimeout(() => {
+                                const balloon = document.createElement('div');
+                                balloon.className = 'balloon';
+                                const icons = ['🎈', '🎉', '💕', '❤️', '🎊', '✨'];
+                                balloon.textContent = icons[Math.floor(Math.random() * icons.length)];
+                                balloon.style.setProperty('--left', `${Math.random() * 100}%`);
+                                balloon.style.setProperty('--duration', `${5 + Math.random() * 3}s`);
+                                balloon.style.setProperty('--drift', `${(Math.random() - 0.5) * 200}px`);
+                                balloon.style.setProperty('--rotate', `${Math.random() * 360}deg`);
+                                document.body.appendChild(balloon);
+                                
+                                setTimeout(() => balloon.remove(), 8000);
+                            }, i * 150);
+                        }
+                    }, 500);
+                },
+                copyLink() {
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url).then(() => {
+                        this.toastMessage = 'Link copied! 💕';
+                        this.showToast = true;
+                        setTimeout(() => {
+                            this.showToast = false;
+                        }, 3000);
+                    }).catch(err => {
+                        this.toastMessage = 'Failed to copy link';
+                        this.showToast = true;
+                        setTimeout(() => {
+                            this.showToast = false;
+                        }, 3000);
+                    });
+                },
+                shareWhatsApp() {
+                    const text = encodeURIComponent('Will you be my Valentine? 💕 ' + window.location.href);
+                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                },
+                shareFacebook() {
+                    const url = encodeURIComponent(window.location.href);
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                },
+                shareTwitter() {
+                    const text = encodeURIComponent('Will you be my Valentine? 💕');
+                    const url = encodeURIComponent(window.location.href);
+                    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+                },
+                shareTelegram() {
+                    const text = encodeURIComponent('Will you be my Valentine? 💕');
+                    const url = encodeURIComponent(window.location.href);
+                    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+                },
+                restart() {
+                    this.noCount = 0;
+                    this.accepted = false;
+                    this.shakeCard = false;
+                    this.wrongAnswer = false;
+                    this.noSlidingOut = false;
+                }
+            },
+            mounted() {
+                // Load error sound (buzzer/wrong sound)
+                this.errorSound = new Audio('/assets/no.mp3');
+                this.errorSound.volume = 0.6;
+                
+                // Load clapping sound
+                this.clapSound = new Audio('/assets/yes.mp3');
+                this.clapSound.volume = 0.6;
+            }
+        }).mount('#app');
+    </script>
+    
+    <style>
+        /* Vue transitions */
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.5s;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+        
+        .slide-enter-active, .slide-leave-active {
+            transition: all 0.3s ease;
+        }
+        .slide-enter-from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        .slide-leave-to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .bounce-enter-active {
+            animation: bounce-in 0.5s;
+        }
+        .bounce-leave-active {
+            animation: bounce-out 0.5s;
+        }
+        
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes bounce-out {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(0);
+            }
+        }
+    </style>
+</body>
+</html>
