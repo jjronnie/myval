@@ -617,16 +617,7 @@
                     const url = encodeURIComponent(this.getShareUrl());
                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
                 },
-                shareTwitter() {
-                    const text = encodeURIComponent('Will you be my Valentine? 💕');
-                    const url = encodeURIComponent(this.getShareUrl());
-                    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-                },
-                shareTelegram() {
-                    const text = encodeURIComponent('Will you be my Valentine? 💕');
-                    const url = encodeURIComponent(this.getShareUrl());
-                    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
-                },
+               
                 restart() {
                     this.noCount = 0;
                     this.accepted = false;
