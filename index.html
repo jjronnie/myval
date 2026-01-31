@@ -206,6 +206,7 @@
             .shake-card {
                 animation: none !important;
             }
+
         }
 
         .gradient-text {
@@ -278,7 +279,7 @@
                             <h1
                                 class="text-3xl md:text-5xl font-bold text-pink-600 mb-4 flex items-center justify-center gap-3">
                                 <i class="fas fa-envelope-open-heart"></i>
-                                Hey Love,
+                                {{ greetingText }}
                             </h1>
 
                             <!-- Heart Illustration -->
@@ -302,13 +303,12 @@
 
 
 
-                            <!-- Wrong answer notification -->
+                            <!-- No click messages -->
                             <transition name="bounce">
-                                <div v-if="wrongAnswer"
+                                <div v-if="noCount > 0"
                                     class="mb-2 text-red-500 font-bold text-lg flex items-center justify-center gap-2"
                                     style="animation: pulse 0.5s;">
-                                    <i class="fas fa-times-circle"></i>
-                                    Wrong answer!
+                                    {{ currentNoText }}
                                 </div>
                             </transition>
 
@@ -317,10 +317,10 @@
                             </p>
 
                             <!-- Buttons Container -->
-                            <div class="mt-6 flex flex-col sm:flex-row gap-6 items-center justify-center relative">
+                            <div class="mt-6 flex flex-row flex-nowrap gap-4 items-center justify-center">
                                 <!-- Yes Button -->
                                 <button @click="handleYes"
-                                    class="btn-grow bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-4 px-12 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-pink-300 z-20 flex items-center gap-2"
+                                    class="btn-grow bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-3 px-6 sm:py-4 sm:px-12 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-pink-300 z-20 flex items-center gap-2 whitespace-nowrap"
                                     :style="yesButtonStyle" aria-label="Say yes to being my Valentine">
                                     <i class="fas fa-heart"></i>
                                     Yes!
@@ -329,21 +329,21 @@
 
                                 <!-- No Button -->
                                 <button v-if="showNoButton" @click="handleNo" :class="{ 'slide-out': noSlidingOut }"
-                                    class="btn-no-push border-2 border-gray-400 hover:border-gray-600 text-gray-600 font-bold py-4 px-12 rounded-full focus:outline-none focus:ring-4 focus:ring-gray-300 flex items-center gap-2"
+                                    class="btn-no-push border-2 border-gray-400 hover:border-gray-600 text-gray-600 font-bold py-3 px-6 sm:py-4 sm:px-12 rounded-full focus:outline-none focus:ring-4 focus:ring-gray-300 flex items-center gap-2 whitespace-nowrap"
                                     :style="noButtonStyle" aria-label="Say no">
                                     <i class="fas fa-times"></i>
-                                    {{ currentNoText }}
+                                    No
                                 </button>
-
-                                <!-- No has left message -->
-                                <transition name="fade">
-                                    <div v-if="!showNoButton && !noSlidingOut"
-                                        class="text-gray-400 italic text-sm flex items-center gap-2">
-                                        <i class="fas fa-ghost"></i>
-                                        "No" has left the chat...
-                                    </div>
-                                </transition>
                             </div>
+
+                            <!-- No has left message -->
+                            <transition name="fade">
+                                <div v-if="!showNoButton && !noSlidingOut"
+                                    class="mt-4 text-gray-400 italic text-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-ghost"></i>
+                                    "No" has left the chat...
+                                </div>
+                            </transition>
                         </div>
 
                         <!-- Accepted state -->
@@ -382,13 +382,13 @@
                                     </h3>
 
                                     <div class="flex flex-wrap gap-3 justify-center mb-6">
-                                        <button @click="shareWhatsApp"
+                                        <button @click="openShareModal('whatsapp')"
                                             class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 flex items-center gap-2">
                                             <i class="fab fa-whatsapp"></i>
                                             WhatsApp
                                         </button>
 
-                                        <button @click="copyLink"
+                                        <button @click="openShareModal('copy')"
                                             class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 flex items-center gap-2 ">
                                             <i class="fas fa-link"></i>
                                             Copy Link
@@ -437,15 +437,7 @@
                 </div>
             </div>
 
-            <!-- <div class="mt-8">
-                <div class="max-w-3xl mx-auto bg-white/50 backdrop-blur-sm border-2 border-dashed border-pink-300 rounded-lg flex items-center justify-center shadow-lg" 
-                     style="height: 90px;">
-                    <div class="text-center">
-                        <i class="fas fa-ad text-pink-300 text-2xl mb-1"></i>
-                        <p class="text-pink-400 text-sm font-medium">Ad Space 728x90 / 320x100</p>
-                    </div>
-                </div>
-            </div> -->
+            
 
             <!-- Toast notification -->
             <transition name="slide">
@@ -457,6 +449,46 @@
             </transition>
 
         </div>
+
+        <!-- Share modal -->
+        <transition name="fade">
+            <div v-if="showShareModal"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+                    <button @click="closeShareModal"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" aria-label="Close share modal">
+                        <i class="fas fa-xmark text-xl"></i>
+                    </button>
+
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                        <i class="fas fa-heart text-pink-500"></i>
+                        Add a name (optional)
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-4">
+                        We'll personalize the greeting and include it in the share link.
+                    </p>
+
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" for="share-name">
+                        Name
+                    </label>
+                    <input id="share-name" ref="shareNameInput" v-model="shareNameInput" type="text"
+                        @keyup.enter="submitShare"
+                        placeholder="e.g. Alex"
+                        class="w-full rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 px-4 py-3 outline-none mb-5">
+
+                    <div class="flex items-center justify-end gap-3">
+                        <button @click="closeShareModal"
+                            class="px-5 py-2 rounded-full border-2 border-gray-300 text-gray-600 hover:border-gray-400">
+                            Cancel
+                        </button>
+                        <button @click="submitShare"
+                            class="px-6 py-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold shadow-md hover:from-pink-600 hover:to-red-600">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
     </div>
 
     <script>
@@ -470,15 +502,17 @@
                     showToast: false,
                     toastMessage: '',
                     shakeCard: false,
-                    wrongAnswer: false,
                     noSlidingOut: false,
+                    showShareModal: false,
+                    shareAction: null,
+                    shareNameInput: '',
+                    sharedName: '',
                     noTexts: [
-                        'No',
                         'Are you sure?',
                         'Sure sure?',
                         'Think again.',
                         'Baby, please.',
-                        'Don\'t do me like that.',
+                        'I Don\'t think you now have an option.',
                         'I\'ll cry.',
                         'I\'m already picking flowers.',
                         'That hurts, you know.',
@@ -526,8 +560,16 @@
                 };
             },
             computed: {
+                displayName() {
+                    return this.sharedName;
+                },
+                greetingText() {
+                    const name = this.displayName ? this.displayName.trim() : '';
+                    return name ? `Hey ${name},` : 'Hey Love,';
+                },
                 currentNoText() {
-                    const index = Math.min(this.noCount, this.noTexts.length - 1);
+                    if (this.noCount === 0) return '';
+                    const index = Math.min(this.noCount - 1, this.noTexts.length - 1);
                     return this.noTexts[index];
                 },
                 currentSubtitle() {
@@ -547,23 +589,76 @@
                     };
                 },
                 noButtonStyle() {
-                    // Push the No button to the right as Yes grows
-                    const pushDistance = this.noCount * 30; // pixels to push
+                    const shrinkScale = Math.max(0.45, 1 - (this.noCount * 0.08));
+                    const opacity = Math.max(0.2, 1 - (this.noCount * 0.06));
                     return {
-                        transform: `translateX(${pushDistance}px)`,
-                        opacity: Math.max(0, 1 - (this.noCount * 0.05))
+                        transform: `scale(${shrinkScale})`,
+                        opacity
                     };
                 },
                 showNoButton() {
-                    return this.noCount < 15 && !this.noSlidingOut;
+                    return this.noCount < 7 && !this.noSlidingOut;
                 },
                 randomFinalMessage() {
                     return this.finalMessages[Math.floor(Math.random() * this.finalMessages.length)];
                 }
             },
             methods: {
-                getShareUrl() {
-                    return 'https://tinyurl.com/3vtecaur';
+                getShareUrl(nameOverride = '') {
+                    const url = new URL(window.location.href);
+                    const trimmed = nameOverride.trim();
+                    if (trimmed) {
+                        url.searchParams.set('name', trimmed);
+                    } else {
+                        url.searchParams.delete('name');
+                    }
+                    return url.toString();
+                },
+                openShareModal(action) {
+                    this.shareAction = action;
+                    this.shareNameInput = this.displayName || '';
+                    this.showShareModal = true;
+                    this.$nextTick(() => {
+                        const input = this.$refs.shareNameInput;
+                        if (input) input.focus();
+                    });
+                },
+                closeShareModal() {
+                    this.showShareModal = false;
+                    this.shareAction = null;
+                },
+                submitShare() {
+                    const name = this.shareNameInput.trim();
+                    this.sharedName = name;
+                    const url = this.getShareUrl(name);
+
+                    if (this.shareAction === 'copy') {
+                        navigator.clipboard.writeText(url).then(() => {
+                            this.toastMessage = 'Link copied! 💕';
+                            this.showToast = true;
+                            setTimeout(() => {
+                                this.showToast = false;
+                            }, 3000);
+                        }).catch(() => {
+                            this.toastMessage = 'Failed to copy link';
+                            this.showToast = true;
+                            setTimeout(() => {
+                                this.showToast = false;
+                            }, 3000);
+                        });
+                    }
+
+                    if (this.shareAction === 'whatsapp') {
+                        const text = encodeURIComponent('Will you be my Valentine? 💕 ' + url);
+                        window.open(`https://wa.me/?text=${text}`, '_blank');
+                    }
+
+                    if (this.shareAction === 'facebook') {
+                        const encoded = encodeURIComponent(url);
+                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encoded}`, '_blank');
+                    }
+
+                    this.closeShareModal();
                 },
                 async handleNo() {
                     // Play error sound
@@ -574,18 +669,13 @@
 
                     this.noCount++;
                     this.shakeCard = true;
-                    this.wrongAnswer = true;
 
                     setTimeout(() => {
                         this.shakeCard = false;
                     }, 600);
 
-                    setTimeout(() => {
-                        this.wrongAnswer = false;
-                    }, 2000);
-
                     // If we've reached the limit, slide out the No button
-                    if (this.noCount >= 15) {
+                    if (this.noCount >= 5) {
                         this.noSlidingOut = true;
                     }
                 },
@@ -645,40 +735,20 @@
                         }
                     }, 500);
                 },
-                copyLink() {
-                    const url = this.getShareUrl();
-                    navigator.clipboard.writeText(url).then(() => {
-                        this.toastMessage = 'Link copied! 💕';
-                        this.showToast = true;
-                        setTimeout(() => {
-                            this.showToast = false;
-                        }, 3000);
-                    }).catch(err => {
-                        this.toastMessage = 'Failed to copy link';
-                        this.showToast = true;
-                        setTimeout(() => {
-                            this.showToast = false;
-                        }, 3000);
-                    });
-                },
-                shareWhatsApp() {
-                    const text = encodeURIComponent('Will you be my Valentine? 💕 ' + this.getShareUrl());
-                    window.open(`https://wa.me/?text=${text}`, '_blank');
-                },
-                shareFacebook() {
-                    const url = encodeURIComponent(this.getShareUrl());
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
-                },
-
                 restart() {
                     this.noCount = 0;
                     this.accepted = false;
                     this.shakeCard = false;
-                    this.wrongAnswer = false;
                     this.noSlidingOut = false;
                 }
             },
             mounted() {
+                const params = new URLSearchParams(window.location.search);
+                const nameParam = params.get('name');
+                if (nameParam) {
+                    this.sharedName = nameParam.trim();
+                }
+
                 // Load error sound (buzzer/wrong sound)
                 this.errorSound = new Audio('/assets/no.mp3');
                 this.errorSound.volume = 0.6;
